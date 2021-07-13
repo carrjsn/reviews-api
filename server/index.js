@@ -1,7 +1,13 @@
 const express = require('express');
+const db = require('../db/connect.js');
 const app = express();
 
-
+// make db queries within server
+// - - - - - -
+// db.query('SELECT * from table1', (err, res) => {
+//   console.log('db server log', (err, res));
+//   db.end();
+// });
 
 const PORT = 3000;
 app.listen(PORT, () => {
