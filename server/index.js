@@ -1,16 +1,30 @@
 const express = require('express');
-// const db = require('../db/postgres.js');
 const app = express();
 const models = require('../models/index.js');
 
 
-// Controllers
 app.get('/reviews', (req, res) => {
+  // get reviews
+  // query params: page, count, sort, product_id
+  // let options = {
+  //   page: req.query.page,
+  //   count: req.query.count,
+  //   sort: req.query.sort,
+  //   id: req.query.product_id
+  // }
+
   models.getReviews((err, data) => {
     if (err) {
-      console.log('error');
+      console.log('error', err);
     } else {
-      console.log('data', data)
+      // make a new return object {
+      let result = {
+        product: req.query.product_id,
+        page: req.query.page || 1,
+        count: req.query.count,
+        results: data
+      }
+      console.log('data', result)
       // res.send(data);
     }
   });
@@ -18,10 +32,12 @@ app.get('/reviews', (req, res) => {
 
 app.post('/reviews', (req, res) => {
   // post a review
+  // query params
 });
 
 app.get('/reviews/meta', (req, res) => {
   // get meta info
+  // use query params
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
@@ -47,6 +63,30 @@ app.put('/reviews/:review_id/report', (req, res) => {
     }
   });
 });
+
+
+models.getReviews(145265, (err, data) => {
+  if (err) {
+    console.log('error', err);
+  } else {
+    // make a new return object {
+    // "product": req.query.product_id,
+    // "page": req.query.page || 1,
+    // "count": req.query.count,
+    // "results: [<data>]"
+    // }
+    let result = {
+      product: 145265,
+      page: 1,
+      count: 5,
+      results: data
+    }
+    console.log('data', result)
+    console.log('photos', result.results[0].photos)
+    // res.send(data);
+  }
+});
+
 
 const PORT = 3000;
 app.listen(PORT, () => {
