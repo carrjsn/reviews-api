@@ -6,12 +6,12 @@ const models = require('../models/index.js');
 app.get('/reviews', (req, res) => {
   // get reviews
   // query params: page, count, sort, product_id
-  let options = {
-    page: req.query.page,
-    count: req.query.count,
-    sort: req.query.sort,
-    id: req.query.product_id
-  }
+  // let options = {
+  //   page: req.query.page,
+  //   count: req.query.count,
+  //   sort: req.query.sort,
+  //   id: req.query.product_id
+  // }
 
   models.getReviews((err, data) => {
     if (err) {

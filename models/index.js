@@ -3,16 +3,29 @@ const db = require('../db/postgres.js');
 module.exports = {
   getMeta: () => {
     // query db for meta data
+
+    // ratings: select count(*) from reviews where rating = x and product_id = ${id}
+      // return string not int
+
+    // recommended: select count(*) from reviews where recommend = true and product_id = ${id}
+      // return string not int
+
+    // characteristics:
+    // get characeristic names, id for the given product_id
+
+    // then get the corresponding value for each characteristic for the given review_id, characteristic_id
+
   },
 
   getReviews: (id, callback) => {
+    // TODO: make arg options to handle id, page, count etc..
     // get reviews from db
-    let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id} AND reported = true`;
+    let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id} AND reported = false`;
 
     db.query(queryString)
       .then((results) => {
         let reviews = results.rows;
-        // convert date
+        // convert date on each result object, remove extra props
         reviews.forEach((row) => {
           row.date = row.to_timestamp.toISOString();
           row.review_id = row.id;
