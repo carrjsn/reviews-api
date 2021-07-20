@@ -37,7 +37,15 @@ app.post('/reviews', (req, res) => {
 
 app.get('/reviews/meta', (req, res) => {
   // get meta info
-  // use query params
+  // 1 query param: product id
+  models.getMeta(req.query.product_id, (err, data) => {
+    if (err) {
+      console.log('meta error');
+    } else {
+      console.log('meta data', data)
+      // res.send(something)
+    }
+  });
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
@@ -64,28 +72,44 @@ app.put('/reviews/:review_id/report', (req, res) => {
   });
 });
 
+// for testing - remove later
 
-models.getReviews(145265, (err, data) => {
+
+models.getMeta(345678, (err, data) => {
   if (err) {
-    console.log('error', err);
+    console.log('meta error');
   } else {
-    // make a new return object {
-    // "product": req.query.product_id,
-    // "page": req.query.page || 1,
-    // "count": req.query.count,
-    // "results: [<data>]"
-    // }
-    let result = {
-      product: 145265,
-      page: 1,
-      count: 5,
-      results: data
-    }
-    console.log('data', result)
-    console.log('photos', result.results[0].photos)
-    // res.send(data);
+    console.log('meta data', data)
+    // res.send(something)
   }
 });
+
+
+
+
+
+
+// models.getReviews(145265, (err, data) => {
+//   if (err) {
+//     console.log('error', err);
+//   } else {
+//     // make a new return object {
+//     // "product": req.query.product_id,
+//     // "page": req.query.page || 1,
+//     // "count": req.query.count,
+//     // "results: [<data>]"
+//     // }
+//     let result = {
+//       product: 145265,
+//       page: 1,
+//       count: 5,
+//       results: data
+//     }
+//     console.log('data', result)
+//     console.log('photos', result.results[0].photos)
+//     // res.send(data);
+//   }
+// });
 
 
 const PORT = 3000;

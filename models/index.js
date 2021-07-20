@@ -1,14 +1,46 @@
 const db = require('../db/postgres.js');
 
 module.exports = {
-  getMeta: () => {
+  getMeta: async (id, callback) => {
     // query db for meta data
 
-    // ratings: select count(*) from reviews where rating = x and product_id = ${id}
-      // return string not int
+    let ratings = {};
+    let recommended = {
+      false: 0,
+      true: 0
+    };
+    let characteristics = {};
+    // ratings: select rating from reviews where product_id = ${id}
+    await db.query(`SELECT rating FROM reviews WHERE product_id = ${id}`)
+      .then((data) => {
+        // return string not int ?
+        data.rows.forEach((row) => {
+          if (!ratings[row.rating]) {
+            ratings[row.rating] = 1;
+          } else {
+            ratings[row.rating]++;
+          }
+        })
+      })
+      .catch((error) => {
+        console.log('ratings model error', error)
+        // callback error
+      });
 
     // recommended: select count(*) from reviews where recommend = true and product_id = ${id}
-      // return string not int
+    await db.query(`SELECT recommend FROM reviews WHERE product_id = ${id}`)
+      // return string not int?
+      .then((data) => {
+        data.rows.forEach((row) => recommended[row.recommend]++);
+      })
+      .catch((error) => {
+        console.log('recommend error', error);
+      });
+
+
+    console.log('ratings', ratings);
+    console.log('recommend', recommended);
+
 
     // characteristics:
     // get characeristic names, id for the given product_id
