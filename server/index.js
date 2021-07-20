@@ -1,11 +1,18 @@
 const express = require('express');
-// const db = require('../db/postgres.js');
 const app = express();
 const models = require('../models/index.js');
 
 
-// Controllers
 app.get('/reviews', (req, res) => {
+  // get reviews
+  // query params: page, count, sort, product_id
+  let options = {
+    page: req.query.page,
+    count: req.query.count,
+    sort: req.query.sort,
+    id: req.query.product_id
+  }
+
   models.getReviews((err, data) => {
     if (err) {
       console.log('error');
@@ -18,10 +25,12 @@ app.get('/reviews', (req, res) => {
 
 app.post('/reviews', (req, res) => {
   // post a review
+  // query params
 });
 
 app.get('/reviews/meta', (req, res) => {
   // get meta info
+  // use query params
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
@@ -47,6 +56,17 @@ app.put('/reviews/:review_id/report', (req, res) => {
     }
   });
 });
+
+
+models.getReviews(145265, (err, data) => {
+  if (err) {
+    console.log('error');
+  } else {
+    console.log('data', data)
+    // res.send(data);
+  }
+});
+
 
 const PORT = 3000;
 app.listen(PORT, () => {

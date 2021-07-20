@@ -5,16 +5,36 @@ module.exports = {
     // query db for meta data
   },
 
-  getReviews: (callback) => {
+  getReviews: (id, callback) => {
     // get reviews from db
-    db.query('SELECT * FROM reviews limit 10', (err, res) => {
-      if (err) {
-        callback(err, null);
-      } else {
-        callback(null, res.rows)
-      }
-      db.end();
-    });
+    let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id}`;
+
+    // promises...
+    db.query(queryString)
+      .then((results) => {
+        let reviews = results.rows;
+        console.log('results promise', reviews)
+        reviews.forEach((row) => {
+          row.date = row.to_timestamp.toISOString();
+          delete row.to_timestamp;
+        });
+        callback(null, reviews);
+
+      })
+      .catch((err) => {
+        callback(err, null)
+      })
+
+
+    //callbacks...
+    // db.query(queryString, (err, res) => {
+    //   if (err) {
+    //     callback(err, null);
+    //   } else {
+    //     callback(null, res);
+    //   }
+    //   db.end();
+    // });
   },
 
   addReview: () => {
@@ -31,7 +51,7 @@ module.exports = {
         callback(null, 'helpfulness update successful')
       }
     });
-    db.end()
+    db.end();
   },
 
   reportReview: (id, callback) => {
