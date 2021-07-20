@@ -25,23 +25,25 @@ app.get('/reviews/meta', (req, res) => {
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
-  // TODO: extract review_id from path
-  models.updateHelpfulness((err) => {
+  // update db
+  models.updateHelpfulness(req.params.review_id, (err) => {
     if (err) {
       console.log('error updating helpfulness')
     } else {
       console.log('success updating helpfulness')
+      // res.send()
     }
   });
 });
 
 app.put('/reviews/:review_id/report', (req, res) => {
-  // TODO: extract review_id from path
-  models.reportReview((err) => {
+  // update db
+  models.reportReview(req.params.review_id, (err) => {
     if (err) {
       console.log('error reporting review')
     } else {
       console.log('success reporting review')
+      // res.send()
     }
   });
 });
