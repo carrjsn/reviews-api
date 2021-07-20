@@ -9,32 +9,32 @@ module.exports = {
     // get reviews from db
     let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id}`;
 
-    // promises...
     db.query(queryString)
       .then((results) => {
         let reviews = results.rows;
-        console.log('results promise', reviews)
+        // convert date
         reviews.forEach((row) => {
           row.date = row.to_timestamp.toISOString();
           delete row.to_timestamp;
+          row.photos = [];
         });
+        return reviews;
+      })
+      .then(async (reviews) => {
+        // get photos from photo table for each review
+        for (let review of reviews) {
+          await db.query(`SELECT id, url FROM photos WHERE review_id = ${review.id}`)
+            .then((results) => review.photos = results.rows)
+        }
+        return reviews;
+      })
+      .then((reviews) => {
         callback(null, reviews);
-
       })
       .catch((err) => {
         callback(err, null)
       })
 
-
-    //callbacks...
-    // db.query(queryString, (err, res) => {
-    //   if (err) {
-    //     callback(err, null);
-    //   } else {
-    //     callback(null, res);
-    //   }
-    //   db.end();
-    // });
   },
 
   addReview: () => {

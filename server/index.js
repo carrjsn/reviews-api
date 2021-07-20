@@ -15,7 +15,7 @@ app.get('/reviews', (req, res) => {
 
   models.getReviews((err, data) => {
     if (err) {
-      console.log('error');
+      console.log('error', err);
     } else {
       console.log('data', data)
       // res.send(data);
