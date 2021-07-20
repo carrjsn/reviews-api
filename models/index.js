@@ -19,11 +19,29 @@ module.exports = {
 
   addReview: () => {
     // add review insert into reviews table in db
+
   },
-  updateHelpfulness: () => {
+  updateHelpfulness: (id, callback) => {
     // update db: increment helpfulness for given review id
+    db.query(`UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = ${id}`, (err, res) => {
+      if (err) {
+        callback(err, null);
+      } else {
+        callback(null, 'helpfulness update successful')
+      }
+    });
+    db.end()
   },
-  reportReview: () => {
+  reportReview: (id, callback) => {
     // update db: set review id reported to be true
+    db.query(`UPDATE reviews SET reported = true WHERE id = ${id}`, (err, res) => {
+      if (err) {
+        callback(err, null);
+      } else {
+        callback(null, 'review successfully reported')
+      }
+    });
+    db.end()
+
   },
 };
