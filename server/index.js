@@ -17,7 +17,14 @@ app.get('/reviews', (req, res) => {
     if (err) {
       console.log('error', err);
     } else {
-      console.log('data', data)
+      // make a new return object {
+      let result = {
+        product: req.query.product_id,
+        page: req.query.page || 1,
+        count: req.query.count,
+        results: data
+      }
+      console.log('data', result)
       // res.send(data);
     }
   });
@@ -60,9 +67,22 @@ app.put('/reviews/:review_id/report', (req, res) => {
 
 models.getReviews(145265, (err, data) => {
   if (err) {
-    console.log('error');
+    console.log('error', err);
   } else {
-    console.log('data', data)
+    // make a new return object {
+    // "product": req.query.product_id,
+    // "page": req.query.page || 1,
+    // "count": req.query.count,
+    // "results: [<data>]"
+    // }
+    let result = {
+      product: 145265,
+      page: 1,
+      count: 5,
+      results: data
+    }
+    console.log('data', result)
+    console.log('photos', result.results[0].photos)
     // res.send(data);
   }
 });

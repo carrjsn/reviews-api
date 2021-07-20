@@ -7,7 +7,7 @@ module.exports = {
 
   getReviews: (id, callback) => {
     // get reviews from db
-    let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id}`;
+    let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id} AND reported = true`;
 
     db.query(queryString)
       .then((results) => {
@@ -15,7 +15,11 @@ module.exports = {
         // convert date
         reviews.forEach((row) => {
           row.date = row.to_timestamp.toISOString();
+          row.review_id = row.id;
           delete row.to_timestamp;
+          delete row.product_id;
+          delete row.id;
+          delete row.reviewer_email;
           row.photos = [];
         });
         return reviews;
@@ -23,7 +27,7 @@ module.exports = {
       .then(async (reviews) => {
         // get photos from photo table for each review
         for (let review of reviews) {
-          await db.query(`SELECT id, url FROM photos WHERE review_id = ${review.id}`)
+          await db.query(`SELECT id, url FROM photos WHERE review_id = ${review.review_id}`)
             .then((results) => review.photos = results.rows)
         }
         return reviews;
