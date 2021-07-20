@@ -1,7 +1,7 @@
 const db = require('../db/postgres.js');
 
 module.exports = {
-  getMeta: async (id, callback) => {
+  getMeta: async (productId, callback) => {
     // query db for meta data
 
     let ratings = {};
@@ -10,8 +10,9 @@ module.exports = {
       true: 0
     };
     let characteristics = {};
+
     // ratings: select rating from reviews where product_id = ${id}
-    await db.query(`SELECT rating FROM reviews WHERE product_id = ${id}`)
+    await db.query(`SELECT rating FROM reviews WHERE product_id = ${productId}`)
       .then((data) => {
         // return string not int ?
         data.rows.forEach((row) => {
@@ -28,7 +29,7 @@ module.exports = {
       });
 
     // recommended: select count(*) from reviews where recommend = true and product_id = ${id}
-    await db.query(`SELECT recommend FROM reviews WHERE product_id = ${id}`)
+    await db.query(`SELECT recommend FROM reviews WHERE product_id = ${productId}`)
       // return string not int?
       .then((data) => {
         data.rows.forEach((row) => recommended[row.recommend]++);
@@ -38,14 +39,35 @@ module.exports = {
       });
 
 
-    console.log('ratings', ratings);
-    console.log('recommend', recommended);
-
-
     // characteristics:
     // get characeristic names, id for the given product_id
+    await db.query(`SELECT name, id FROM characteristics WHERE product_id = ${productId}`)
+    .then( async (data) => {
+      for (let row of data.rows) {
+        // then get the corresponding average score for each characteristic for the given characteristic_id
+          characteristics[row.name] = { id: row.id};
+          await db.query(`SELECT ROUND(AVG(characteristic_reviews.value) * 2) / 2 FROM characteristics INNER JOIN characteristic_reviews ON characteristic_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = ${productId} AND characteristics.id = ${row.id}`)
+            .then((data) => {
+              let characteristicRatingAvg = data.rows[0]['?column?'];
+              characteristics[row.name].value = characteristicRatingAvg;
+            })
+        }
+        return;
+      })
+      .then(() => {
+        let result = {
+          product_id: productId,
+          ratings,
+          recommended,
+          characteristics
+        };
+        callback(null, result)
+      })
+      .catch((error) => {
+        console.log('char error', error);
+        callback(error, null);
+      });
 
-    // then get the corresponding value for each characteristic for the given review_id, characteristic_id
 
   },
 

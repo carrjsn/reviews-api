@@ -75,18 +75,14 @@ app.put('/reviews/:review_id/report', (req, res) => {
 // for testing - remove later
 
 
-models.getMeta(345678, (err, data) => {
-  if (err) {
-    console.log('meta error');
-  } else {
-    console.log('meta data', data)
-    // res.send(something)
-  }
-});
-
-
-
-
+// models.getMeta(820511, (err, data) => {
+//   if (err) {
+//     console.log('meta error');
+//   } else {
+//     console.log('meta data', data)
+//     // res.send(something)
+//   }
+// });
 
 
 // models.getReviews(145265, (err, data) => {
