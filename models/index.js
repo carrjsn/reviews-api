@@ -114,18 +114,30 @@ module.exports = {
     let characteristics = options.characteristics; // {}
 
     // add review insert into reviews table in db
-    db.query(`INSERT INTO reviews2(product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) VALUES('${options.product_id}', '${options.rating}', '${options.date}', '${options.summary}', '${options.body}', '${options.recommend}', false, '${options.name}', '${options.email}', 'null', 0)`)
-      .then((result) => {
-        // add regular info
-        console.log('result', result)
-        callback(null, result);
-      })
+    db.query(`INSERT INTO reviews(product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) VALUES('${options.product_id}', '${options.rating}', '${options.date}', '${options.summary}', '${options.body}', '${options.recommend}', false, '${options.name}', '${options.email}', 'null', 0) RETURNING id`)
+      .then( async (result) => {
+        // get id of the row just inserted
+        let insertId = result.rows[0].id
 
+        // itereate over all photo url strings in options
+        for (let url of photos) {
+          // for each insert into photo table using the insertId = review_id
+          await db.query(`INSERT INTO photos (review_id, url) VALUES ('${insertId}', '${url}')`)
+            .then((result) => {
+              console.log('photo added');
+            })
+        }
+
+        // pass 'return' insertId onto characteristics?
+        return insertId;
+      })
+      .then((results) => {
+        // characteristics?
+        console.log('passing insertId onward', results);
+
+      })
       // .then(() => {
-      //   // photos
-      // })
-      // .then(() => {
-      //   // characteristics?
+         // callback(null, result);
       // })
       .catch((err) => {
         console.log('post review error', err);

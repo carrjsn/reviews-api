@@ -108,13 +108,13 @@ app.put('/reviews/:review_id/report', (req, res) => {
 
 let options = {
   product_id: 167688,
-  rating: 4,
+  rating: 2,
   date: Date.now(),
-  summary: 'this rocks',
-  body: 'so good',
+  summary: 'another good thing',
+  body: 'wakawaka',
   recommend: true,
-  name: 'jojo',
-  email: 'jojo@email.com',
+  name: 'fozzy',
+  email: 'fozzybear@email.com',
   photos: ['pictureurl.com', 'picutre2url.net'],
   characteristics: {
     561507: 4,
