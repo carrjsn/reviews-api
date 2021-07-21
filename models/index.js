@@ -109,9 +109,6 @@ module.exports = {
   },
 
   addReview: (options, callback) => {
-    // separate photos array and chracteristic logic/query from options up here
-    let photos = options.photos; // []
-    let characteristics = options.characteristics; // {}
 
     // add review insert into reviews table in db
     db.query(`INSERT INTO reviews(product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) VALUES('${options.product_id}', '${options.rating}', '${options.date}', '${options.summary}', '${options.body}', '${options.recommend}', false, '${options.name}', '${options.email}', 'null', 0) RETURNING id`)
@@ -120,7 +117,7 @@ module.exports = {
         let insertId = result.rows[0].id
 
         // itereate over all photo url strings in options
-        for (let url of photos) {
+        for (let url of options.photos) {
           // for each insert into photo table using the insertId = review_id
           await db.query(`INSERT INTO photos (review_id, url) VALUES ('${insertId}', '${url}')`)
             .then((result) => {
@@ -131,14 +128,18 @@ module.exports = {
         // pass 'return' insertId onto characteristics?
         return insertId;
       })
-      .then((results) => {
+      .then( async (review_id) => {
         // characteristics?
-        console.log('passing insertId onward', results);
 
+        // itereate through key / values in characteristics
+        for (let key in options.characteristics) {
+          await db.query(`INSERT INTO characteristic_reviews (characteristic_id, review_id, value) VALUES ('${key}', '${review_id}', '${options.characteristics[key]}')`)
+            .then((result) => {
+              console.log('characteristic join table updated');
+            })
+        }
+        callback(null, 'review add success')
       })
-      // .then(() => {
-         // callback(null, result);
-      // })
       .catch((err) => {
         console.log('post review error', err);
         callback(err, null);
