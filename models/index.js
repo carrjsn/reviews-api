@@ -42,18 +42,18 @@ module.exports = {
     // characteristics:
     // get characeristic names, id for the given product_id
     await db.query(`SELECT name, id FROM characteristics WHERE product_id = ${productId}`)
-    .then( async (data) => {
-      for (let row of data.rows) {
-        // then get the corresponding average score for each characteristic for the given characteristic_id
-          characteristics[row.name] = { id: row.id};
-          await db.query(`SELECT ROUND(AVG(characteristic_reviews.value) * 2) / 2 FROM characteristics INNER JOIN characteristic_reviews ON characteristic_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = ${productId} AND characteristics.id = ${row.id}`)
-            .then((data) => {
-              let characteristicRatingAvg = data.rows[0]['?column?'];
-              characteristics[row.name].value = characteristicRatingAvg;
-            })
-        }
-        return;
-      })
+      .then( async (data) => {
+        for (let row of data.rows) {
+          // then get the corresponding average score for each characteristic for the given characteristic_id
+            characteristics[row.name] = { id: row.id};
+            await db.query(`SELECT ROUND(AVG(characteristic_reviews.value) * 2) / 2 FROM characteristics INNER JOIN characteristic_reviews ON characteristic_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = ${productId} AND characteristics.id = ${row.id}`)
+              .then((data) => {
+                let characteristicRatingAvg = data.rows[0]['?column?'];
+                characteristics[row.name].value = characteristicRatingAvg;
+              })
+          }
+          return;
+        })
       .then(() => {
         let result = {
           product_id: productId,
@@ -108,9 +108,42 @@ module.exports = {
 
   },
 
-  addReview: () => {
-    // add review insert into reviews table in db
+  addReview: (options, callback) => {
 
+    // add review insert into reviews table in db
+    db.query(`INSERT INTO reviews(product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) VALUES('${options.product_id}', '${options.rating}', '${options.date}', '${options.summary}', '${options.body}', '${options.recommend}', false, '${options.name}', '${options.email}', 'null', 0) RETURNING id`)
+      .then( async (result) => {
+        // get id of the row just inserted
+        let insertId = result.rows[0].id
+
+        // itereate over all photo url strings in options
+        for (let url of options.photos) {
+          // for each insert into photo table using the insertId = review_id
+          await db.query(`INSERT INTO photos (review_id, url) VALUES ('${insertId}', '${url}')`)
+            .then((result) => {
+              console.log('photo added');
+            })
+        }
+
+        // pass 'return' insertId onto characteristics?
+        return insertId;
+      })
+      .then( async (review_id) => {
+        // characteristics?
+
+        // itereate through key / values in characteristics
+        for (let key in options.characteristics) {
+          await db.query(`INSERT INTO characteristic_reviews (characteristic_id, review_id, value) VALUES ('${key}', '${review_id}', '${options.characteristics[key]}')`)
+            .then((result) => {
+              console.log('characteristic join table updated');
+            })
+        }
+        callback(null, 'review add success')
+      })
+      .catch((err) => {
+        console.log('post review error', err);
+        callback(err, null);
+      })
   },
 
   updateHelpfulness: (id, callback) => {
