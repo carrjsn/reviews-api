@@ -32,24 +32,18 @@ app.get('/reviews', (req, res) => {
 });
 
 app.post('/reviews', (req, res) => {
-  // post a review
-  // query params
+  // body params
   let options = {
-    product_id: 167688,
-    rating: 4,
+    product_id: req.body.product_id,
+    rating: req.body.rating,
     date: Date.now(),
-    summary: 'this rocks',
-    body: 'so good',
-    recommend: true,
-    name: 'jojo',
-    email: 'jojo@email.com',
-    photos: ['pictureurl.com', 'picutre2url.net'],
-    characteristics: {
-      561507: 4,
-      561508: 2,
-      561509: 3,
-      561510: 4
-    }
+    summary: req.body.summary,
+    body: req.body.body,
+    recommend: req.body.recommend,
+    name: req.body.name,
+    email: req.body.email,
+    photos: req.body.photos,
+    characteristics: req.body.characteristics
   };
 
   models.addReview(options, (err, data) => {
@@ -106,33 +100,33 @@ app.put('/reviews/:review_id/report', (req, res) => {
 
 // for testing - remove later
 
-let options = {
-  product_id: 167688,
-  rating: 2,
-  date: Date.now(),
-  summary: 'another good thing',
-  body: 'wakawaka',
-  recommend: true,
-  name: 'fozzy',
-  email: 'fozzybear@email.com',
-  photos: ['pictureurl.com', 'picutre2url.net'],
-  characteristics: {
-    561507: 4,
-    561508: 2,
-    561509: 3,
-    561510: 4
-  }
-};
+// let options = {
+//   product_id: 167688,
+//   rating: 2,
+//   date: Date.now(),
+//   summary: 'another good thing',
+//   body: 'wakawaka',
+//   recommend: true,
+//   name: 'hello',
+//   email: 'helloworld@email.com',
+//   photos: ['picture3url.com', 'picutre3url.net'],
+//   characteristics: {
+//     561507: 4,
+//     561508: 2,
+//     561509: 3,
+//     561510: 4
+//   }
+// };
 
-models.addReview(options, (err, data) => {
-  if (err) {
-    console.log('error posting review');
-  } else {
-    console.log('success posting review');
-    // res.status(201);
-    // res.send();
-  }
-});
+// models.addReview(options, (err, data) => {
+//   if (err) {
+//     console.log('error posting review');
+//   } else {
+//     console.log('success posting review');
+//     // res.status(201);
+//     // res.send();
+//   }
+// });
 
 
 // models.getMeta(820511, (err, data) => {
