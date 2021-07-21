@@ -42,18 +42,18 @@ module.exports = {
     // characteristics:
     // get characeristic names, id for the given product_id
     await db.query(`SELECT name, id FROM characteristics WHERE product_id = ${productId}`)
-    .then( async (data) => {
-      for (let row of data.rows) {
-        // then get the corresponding average score for each characteristic for the given characteristic_id
-          characteristics[row.name] = { id: row.id};
-          await db.query(`SELECT ROUND(AVG(characteristic_reviews.value) * 2) / 2 FROM characteristics INNER JOIN characteristic_reviews ON characteristic_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = ${productId} AND characteristics.id = ${row.id}`)
-            .then((data) => {
-              let characteristicRatingAvg = data.rows[0]['?column?'];
-              characteristics[row.name].value = characteristicRatingAvg;
-            })
-        }
-        return;
-      })
+      .then( async (data) => {
+        for (let row of data.rows) {
+          // then get the corresponding average score for each characteristic for the given characteristic_id
+            characteristics[row.name] = { id: row.id};
+            await db.query(`SELECT ROUND(AVG(characteristic_reviews.value) * 2) / 2 FROM characteristics INNER JOIN characteristic_reviews ON characteristic_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = ${productId} AND characteristics.id = ${row.id}`)
+              .then((data) => {
+                let characteristicRatingAvg = data.rows[0]['?column?'];
+                characteristics[row.name].value = characteristicRatingAvg;
+              })
+          }
+          return;
+        })
       .then(() => {
         let result = {
           product_id: productId,
@@ -108,9 +108,29 @@ module.exports = {
 
   },
 
-  addReview: () => {
-    // add review insert into reviews table in db
+  addReview: (options, callback) => {
+    // separate photos array and chracteristic logic/query from options up here
+    let photos = options.photos; // []
+    let characteristics = options.characteristics; // {}
 
+    // add review insert into reviews table in db
+    db.query(`INSERT INTO reviews2(product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) VALUES('${options.product_id}', '${options.rating}', '${options.date}', '${options.summary}', '${options.body}', '${options.recommend}', false, '${options.name}', '${options.email}', 'null', 0)`)
+      .then((result) => {
+        // add regular info
+        console.log('result', result)
+        callback(null, result);
+      })
+
+      // .then(() => {
+      //   // photos
+      // })
+      // .then(() => {
+      //   // characteristics?
+      // })
+      .catch((err) => {
+        console.log('post review error', err);
+        callback(err, null);
+      })
   },
 
   updateHelpfulness: (id, callback) => {

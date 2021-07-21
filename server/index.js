@@ -25,6 +25,7 @@ app.get('/reviews', (req, res) => {
         results: data
       }
       console.log('data', result)
+      // res.status(200);
       // res.send(data);
     }
   });
@@ -33,6 +34,34 @@ app.get('/reviews', (req, res) => {
 app.post('/reviews', (req, res) => {
   // post a review
   // query params
+  let options = {
+    product_id: 167688,
+    rating: 4,
+    date: Date.now(),
+    summary: 'this rocks',
+    body: 'so good',
+    recommend: true,
+    name: 'jojo',
+    email: 'jojo@email.com',
+    photos: ['pictureurl.com', 'picutre2url.net'],
+    characteristics: {
+      561507: 4,
+      561508: 2,
+      561509: 3,
+      561510: 4
+    }
+  };
+
+  models.addReview(options, (err, data) => {
+    if (err) {
+      console.log('error posting review');
+    } else {
+      console.log('success posting review');
+      // res.status(201);
+      // res.send();
+    }
+  });
+
 });
 
 app.get('/reviews/meta', (req, res) => {
@@ -43,6 +72,7 @@ app.get('/reviews/meta', (req, res) => {
       console.log('meta error');
     } else {
       console.log('meta data', data)
+      // res.status(200)
       // res.send(something)
     }
   });
@@ -55,6 +85,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
       console.log('error updating helpfulness')
     } else {
       console.log('success updating helpfulness')
+      // res.status(204)
       // res.send()
     }
   });
@@ -67,12 +98,41 @@ app.put('/reviews/:review_id/report', (req, res) => {
       console.log('error reporting review')
     } else {
       console.log('success reporting review')
+      // res.status(204)
       // res.send()
     }
   });
 });
 
 // for testing - remove later
+
+let options = {
+  product_id: 167688,
+  rating: 4,
+  date: Date.now(),
+  summary: 'this rocks',
+  body: 'so good',
+  recommend: true,
+  name: 'jojo',
+  email: 'jojo@email.com',
+  photos: ['pictureurl.com', 'picutre2url.net'],
+  characteristics: {
+    561507: 4,
+    561508: 2,
+    561509: 3,
+    561510: 4
+  }
+};
+
+models.addReview(options, (err, data) => {
+  if (err) {
+    console.log('error posting review');
+  } else {
+    console.log('success posting review');
+    // res.status(201);
+    // res.send();
+  }
+});
 
 
 // models.getMeta(820511, (err, data) => {
