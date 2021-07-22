@@ -20,9 +20,9 @@ app.get('/reviews', (req, res) => {
     } else {
       // make a new return object {
       let result = {
-        product: req.query.product_id,
-        page: req.query.page || 1,
-        count: req.query.count,
+        product: Number(req.query.product_id),
+        page: Number(req.query.page) || 1,
+        count: Number(req.query.count),
         results: data
       }
       // console.log('data', result)
@@ -60,41 +60,36 @@ app.post('/reviews', (req, res) => {
 });
 
 app.get('/reviews/meta', (req, res) => {
-  // get meta info
-  // 1 query param: product id
   models.getMeta(req.query.product_id, (err, data) => {
     if (err) {
-      // console.log('meta error');
       res.sendStatus(400);
     } else {
-      // console.log('meta data', data)
-      res.status(200)
-      res.send(data)
+      res.status(200);
+      res.send(data);
     }
   });
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
-  // update db
   models.updateHelpfulness(req.params.review_id, (err) => {
     if (err) {
       console.log('error updating helpfulness')
+      res.sendStatus(404);
     } else {
       console.log('success updating helpfulness')
-      res.status(204)
-      res.send()
+      res.sendStatus(204)
     }
   });
 });
 
 app.put('/reviews/:review_id/report', (req, res) => {
-  // update db
   models.reportReview(req.params.review_id, (err) => {
     if (err) {
       console.log('error reporting review')
+      res.sendStatus(404);
     } else {
       console.log('success reporting review')
-      // res.status(204)
+      res.sendStatus(204);
       // res.send()
     }
   });

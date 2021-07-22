@@ -38,7 +38,6 @@ module.exports = {
         console.log('recommend error', error);
       });
 
-
     // characteristics:
     // get characeristic names, id for the given product_id
     await db.query(`SELECT name, id FROM characteristics WHERE product_id = ${productId}`)
@@ -51,10 +50,11 @@ module.exports = {
                 let characteristicRatingAvg = data.rows[0]['?column?'];
                 characteristics[row.name].value = characteristicRatingAvg;
               })
-          }
-          return;
-        })
+        }
+        return;
+      })
       .then(() => {
+
         let result = {
           product_id: productId,
           ratings,
@@ -68,7 +68,7 @@ module.exports = {
         callback(error, null);
       });
 
-    db.end();
+    // db.end();
 
   },
 
@@ -107,7 +107,7 @@ module.exports = {
         callback(err, null)
       })
 
-    db.end();
+    // db.end();
 
   },
 
@@ -148,7 +148,7 @@ module.exports = {
         callback(err, null);
       })
 
-    db.end();
+    // db.end();
   },
 
   updateHelpfulness: (id, callback) => {
@@ -160,7 +160,7 @@ module.exports = {
         callback(null, 'helpfulness update successful')
       }
     });
-    db.end();
+    // db.end();
   },
 
   reportReview: (id, callback) => {
@@ -172,7 +172,7 @@ module.exports = {
         callback(null, 'review successfully reported')
       }
     });
-    db.end()
+    // db.end()
   },
 
 };
