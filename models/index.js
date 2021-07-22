@@ -68,15 +68,16 @@ module.exports = {
         callback(error, null);
       });
 
+    db.end();
 
   },
 
-  getReviews: (id, callback) => {
+  getReviews: async (id, callback) => {
     // TODO: make arg options to handle id, page, count etc..
     // get reviews from db
     let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id} AND reported = false`;
 
-    db.query(queryString)
+    await db.query(queryString)
       .then((results) => {
         let reviews = results.rows;
         // convert date on each result object, remove extra props
@@ -105,6 +106,8 @@ module.exports = {
       .catch((err) => {
         callback(err, null)
       })
+
+    db.end();
 
   },
 
@@ -144,6 +147,8 @@ module.exports = {
         console.log('post review error', err);
         callback(err, null);
       })
+
+    db.end();
   },
 
   updateHelpfulness: (id, callback) => {
