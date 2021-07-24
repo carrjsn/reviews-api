@@ -84,6 +84,7 @@ module.exports = {
         reviews.forEach((row) => {
           row.date = row.to_timestamp.toISOString();
           row.review_id = row.id;
+          if (row.response === 'null') {row.response = null;}
           delete row.to_timestamp;
           delete row.product_id;
           delete row.id;

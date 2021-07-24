@@ -2,6 +2,7 @@ const express = require('express');
 const models = require('../models/index.js');
 const bodyParser = require('body-parser');
 const app = express();
+require('dotenv').config();
 
 app.use(bodyParser.json());
 
@@ -20,11 +21,17 @@ app.get('/reviews', (req, res) => {
       console.log('error', err);
       res.sendStatus(400);
     } else {
+      // convert null string
+      // data.forEach((review) => {
+      //   if (review.response = 'null') {
+      //     review.response = null;
+      //   }
+      // });
       // make a new return object {
       let result = {
         product: Number(req.query.product_id),
         page: Number(req.query.page) || 1,
-        count: Number(req.query.count),
+        count: Number(req.query.count) || 5,
         results: data
       }
       // console.log('data', result)
