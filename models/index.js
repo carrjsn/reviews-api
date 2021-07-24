@@ -38,7 +38,6 @@ module.exports = {
         console.log('recommend error', error);
       });
 
-
     // characteristics:
     // get characeristic names, id for the given product_id
     await db.query(`SELECT name, id FROM characteristics WHERE product_id = ${productId}`)
@@ -51,10 +50,11 @@ module.exports = {
                 let characteristicRatingAvg = data.rows[0]['?column?'];
                 characteristics[row.name].value = characteristicRatingAvg;
               })
-          }
-          return;
-        })
+        }
+        return;
+      })
       .then(() => {
+
         let result = {
           product_id: productId,
           ratings,
@@ -68,15 +68,16 @@ module.exports = {
         callback(error, null);
       });
 
+    // db.end();
 
   },
 
-  getReviews: (id, callback) => {
+  getReviews: async (id, callback) => {
     // TODO: make arg options to handle id, page, count etc..
     // get reviews from db
     let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id} AND reported = false`;
 
-    db.query(queryString)
+    await db.query(queryString)
       .then((results) => {
         let reviews = results.rows;
         // convert date on each result object, remove extra props
@@ -105,6 +106,8 @@ module.exports = {
       .catch((err) => {
         callback(err, null)
       })
+
+    // db.end();
 
   },
 
@@ -144,6 +147,8 @@ module.exports = {
         console.log('post review error', err);
         callback(err, null);
       })
+
+    // db.end();
   },
 
   updateHelpfulness: (id, callback) => {
@@ -155,7 +160,7 @@ module.exports = {
         callback(null, 'helpfulness update successful')
       }
     });
-    db.end();
+    // db.end();
   },
 
   reportReview: (id, callback) => {
@@ -167,7 +172,7 @@ module.exports = {
         callback(null, 'review successfully reported')
       }
     });
-    db.end()
+    // db.end()
   },
 
 };
