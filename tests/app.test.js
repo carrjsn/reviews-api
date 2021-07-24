@@ -4,34 +4,91 @@ const request = require('supertest');
 const db = require('../db/postgres.js');
 
 // allow long queries to be tested
-jest.setTimeout(50000);
+jest.setTimeout(70000);
 
 describe('Add a review', () => {
-  it('should add a review', () => {
 
+  // test post information
+  const options = {
+      product_id: 123457,
+      rating: 4,
+      summary: 'test review',
+      body: 'test review body',
+      recommend: true,
+      name: 'john',
+      email: 'johndoe@email.com',
+      photos: ['url1', 'url2'],
+      characteristics: {
+        '413253': 3,
+        '413254': 4,
+        '413255': 3,
+        '413256': 5
+      }
+  };
+
+  it('should respond with a 201 status code', async () => {
+    const postResponse = await request(app).post('/reviews').send(options);
+    expect(postResponse.statusCode).toBe(201);
   });
+
+  it('should add a new review to the database', async () => {
+    const responseBefore = await request(app).get('/reviews?product_id=123457');
+    const numReviewsBefore = responseBefore.body.results.length;
+    await request(app).post('/reviews').send(options);
+    const responseAfter = await request(app).get('/reviews?product_id=123457');
+    const numReviewsAfter = responseAfter.body.results.length;
+    expect(numReviewsBefore + 1).toEqual(numReviewsAfter);
+  });
+
+  it('should add review photos to database', async () => {
+    const postResponse = await request(app).post('/reviews').send(options);
+    const insertId = postResponse.body;
+    await db.query(`SELECT * FROM photos WHERE review_id = ${insertId}`)
+      .then((results) => {
+        expect(results.rows.length).toBeGreaterThan(0);
+      })
+  });
+
 });
 
-describe('Get reviews', () => {
+xdescribe('Get reviews', () => {
 
   it('should respond with a 200 status code', async () => {
     const response = await request(app).get('/reviews?product_id=123456');
     expect(response.statusCode).toBe(200);
   });
 
-  it('should return one page if no page paramter provided', async () => {
+  it('should return one page by default if no page paramter provided', async () => {
     const response = await request(app).get('/reviews?product_id=123456');
     expect(response.body.page).toBe(1);
   });
 
-  it('should return the correct number of pages of reviews', async () => {
+  it('should return the correct number of pages if page count provided', async () => {
     const response = await request(app).get('/reviews?product_id=123456&page=3');
     expect(response.body.page).toBe(3);
   });
 
+  it('should return date in proper ISO format', async () => {
+    const dateCheck = (str) => {
+      if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) {
+        return false;
+      }
+      var date = new Date(str);
+      return date.toISOString()===str;
+    }
+
+    const response = await request(app).get('/reviews?product_id=123456');
+    expect(dateCheck(response.body.results[0].date)).toBe(true)
+  });
+
+  it('should return photos if review has any', async () => {
+    const response = await request(app).get('/reviews?product_id=123456');
+    expect(response.body.results[0].photos.length).toBeGreaterThan(0);
+  });
+
 });
 
-describe('Get meta data', () => {
+xdescribe('Get meta data', () => {
 
   it('should respond with a 200 status code', async () => {
     const response = await request(app).get('/reviews/meta?product_id=121756');
@@ -61,7 +118,7 @@ describe('Get meta data', () => {
 
 });
 
-describe('Update helpfulness', () => {
+xdescribe('Update helpfulness', () => {
 
   // add beforeEach to reset helpfulness change
   it('should respond with a 204 status code', async () => {
@@ -86,9 +143,9 @@ describe('Update helpfulness', () => {
 
 });
 
-describe('Report a review', () => {
+xdescribe('Report a review', () => {
 
-  it('respond with a 204 status code', async () => {
+  it('should respond with a 204 status code', async () => {
     const response = await request(app).put('/reviews/121252/report');
     expect(response.statusCode).toBe(204);
     // db.query undo the report

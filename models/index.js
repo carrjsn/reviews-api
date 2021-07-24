@@ -124,7 +124,7 @@ module.exports = {
           // for each insert into photo table using the insertId = review_id
           await db.query(`INSERT INTO photos (review_id, url) VALUES ('${insertId}', '${url}')`)
             .then((result) => {
-              console.log('photo added');
+              // console.log('photo added');
             })
         }
 
@@ -138,10 +138,10 @@ module.exports = {
         for (let key in options.characteristics) {
           await db.query(`INSERT INTO characteristic_reviews (characteristic_id, review_id, value) VALUES ('${key}', '${review_id}', '${options.characteristics[key]}')`)
             .then((result) => {
-              console.log('characteristic join table updated');
+              // console.log('characteristic join table updated');
             })
         }
-        callback(null, 'review add success')
+        callback(null, review_id)
       })
       .catch((err) => {
         console.log('post review error', err);

@@ -1,7 +1,9 @@
 const express = require('express');
 const models = require('../models/index.js');
+const bodyParser = require('body-parser');
 const app = express();
 
+app.use(bodyParser.json());
 
 app.get('/reviews', (req, res) => {
   // get reviews
@@ -50,10 +52,11 @@ app.post('/reviews', (req, res) => {
   models.addReview(options, (err, data) => {
     if (err) {
       console.log('error posting review');
+      res.sendStatus(400);
     } else {
       console.log('success posting review');
-      // res.status(201);
-      // res.send();
+      res.status(201);
+      res.json(data);
     }
   });
 
@@ -62,8 +65,10 @@ app.post('/reviews', (req, res) => {
 app.get('/reviews/meta', (req, res) => {
   models.getMeta(req.query.product_id, (err, data) => {
     if (err) {
+      console.log('error getting meta')
       res.sendStatus(400);
     } else {
+      console.log('meta success')
       res.status(200);
       res.send(data);
     }
