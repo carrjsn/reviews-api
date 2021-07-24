@@ -129,13 +129,18 @@ describe('Update helpfulness', () => {
   });
 
   it('should add one to the helpfulness count of a review', async () => {
-    const response = await request(app).get('/reviews?product_id=123456');
-    let reviewHelpfulness = response.body.results[0].helpfulness;
-    let reviewId = response.body.results[0].review_id;
+    // const response = await request(app).get('/reviews?product_id=123456');
+    let response;
+    await db.query('SELECT * FROM reviews WHERE product_id = 123456').then((results) => response = results.rows)
+
+    let reviewHelpfulness = response[0].helpfulness;
+    let reviewId = response[0].id;
 
     await request(app).put(`/reviews/${reviewId}/helpful`);
-    const updatedResponse = await request(app).get('/reviews?product_id=123456');
-    let updatedReviewHelpfulness = updatedResponse.body.results[0].helpfulness;
+    // const updatedResponse = await request(app).get('/reviews?product_id=123456');
+    let updatedResponse;
+    await db.query('SELECT * FROM reviews WHERE product_id = 123456').then((results) => updatedResponse = results.rows)
+    let updatedReviewHelpfulness = updatedResponse[0].helpfulness;
     expect(updatedReviewHelpfulness).toEqual(reviewHelpfulness + 1);
     // reset count
     await db.query(`UPDATE reviews SET helpfulness = helpfulness - 1 WHERE id = ${reviewId}`);
@@ -145,7 +150,7 @@ describe('Update helpfulness', () => {
 
 describe('Report a review', () => {
 
-  it('should respond with a 204 status code', async () => {
+  it('respond with a 204 status code', async () => {
     const response = await request(app).put('/reviews/121252/report');
     expect(response.statusCode).toBe(204);
     // db.query undo the report
@@ -153,8 +158,9 @@ describe('Report a review', () => {
   });
 
   it('reported review should not be rendered on subsequent fetches', async () => {
-    const response = await request(app).get('/reviews?product_id=121259');
-    let reviewId = response.body.results[0].review_id;
+    let response;
+    await db.query('SELECT * FROM reviews WHERE product_id = 121259').then((results) => response = results.rows)
+    let reviewId = response[0].id;
     //report review
     await request(app).put(`/reviews/${reviewId}/report`);
 
