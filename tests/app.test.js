@@ -10,7 +10,7 @@ describe('Add a review', () => {
 
   // test post information
   const options = {
-      product_id: 123457,
+      product_id: 123458,
       rating: 4,
       summary: 'test review',
       body: 'test review body',
@@ -32,10 +32,10 @@ describe('Add a review', () => {
   });
 
   it('should add a new review to the database', async () => {
-    const responseBefore = await request(app).get('/reviews?product_id=123457');
+    const responseBefore = await request(app).get('/reviews?product_id=123458');
     const numReviewsBefore = responseBefore.body.results.length;
     await request(app).post('/reviews').send(options);
-    const responseAfter = await request(app).get('/reviews?product_id=123457');
+    const responseAfter = await request(app).get('/reviews?product_id=123458');
     const numReviewsAfter = responseAfter.body.results.length;
     expect(numReviewsBefore + 1).toEqual(numReviewsAfter);
   });
@@ -51,7 +51,7 @@ describe('Add a review', () => {
 
 });
 
-xdescribe('Get reviews', () => {
+describe('Get reviews', () => {
 
   it('should respond with a 200 status code', async () => {
     const response = await request(app).get('/reviews?product_id=123456');
@@ -88,7 +88,7 @@ xdescribe('Get reviews', () => {
 
 });
 
-xdescribe('Get meta data', () => {
+describe('Get meta data', () => {
 
   it('should respond with a 200 status code', async () => {
     const response = await request(app).get('/reviews/meta?product_id=121756');
@@ -118,7 +118,7 @@ xdescribe('Get meta data', () => {
 
 });
 
-xdescribe('Update helpfulness', () => {
+describe('Update helpfulness', () => {
 
   // add beforeEach to reset helpfulness change
   it('should respond with a 204 status code', async () => {
@@ -143,7 +143,7 @@ xdescribe('Update helpfulness', () => {
 
 });
 
-xdescribe('Report a review', () => {
+describe('Report a review', () => {
 
   it('should respond with a 204 status code', async () => {
     const response = await request(app).put('/reviews/121252/report');
@@ -155,7 +155,6 @@ xdescribe('Report a review', () => {
   it('reported review should not be rendered on subsequent fetches', async () => {
     const response = await request(app).get('/reviews?product_id=121259');
     let reviewId = response.body.results[0].review_id;
-    console.log(reviewId, 'reviewid');
     //report review
     await request(app).put(`/reviews/${reviewId}/report`);
 
