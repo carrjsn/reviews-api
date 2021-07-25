@@ -75,20 +75,15 @@ module.exports = {
   getReviews: async (id, callback) => {
     // TODO: make arg options to handle id, page, count etc..
     // get reviews from db
-    let queryString = `SELECT *, to_timestamp(date / 1000) FROM reviews WHERE product_id = ${id} AND reported = false`;
+    let queryString = `SELECT id AS review_id, rating, summary, recommend, response, body, to_timestamp(date / 1000) AS date, reviewer_name, helpfulness FROM reviews WHERE product_id = ${id} AND reported = false`;
 
     await db.query(queryString)
       .then((results) => {
         let reviews = results.rows;
-        // convert date on each result object, remove extra props
+
         reviews.forEach((row) => {
-          row.date = row.to_timestamp.toISOString();
-          row.review_id = row.id;
+          row.date = row.date.toISOString();
           if (row.response === 'null') {row.response = null;}
-          delete row.to_timestamp;
-          delete row.product_id;
-          delete row.id;
-          delete row.reviewer_email;
           row.photos = [];
         });
         return reviews;

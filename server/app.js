@@ -9,27 +9,21 @@ app.use(bodyParser.json());
 app.get('/reviews', (req, res) => {
   // get reviews
   // query params: page, count, sort, product_id
-  // let options = {
-  //   page: req.query.page,
-  //   count: req.query.count,
-  //   sort: req.query.sort,
-  //   id: req.query.product_id
-  // }
+  let options = {
+    page: req.query.page,
+    count: req.query.count,
+    sort: req.query.sort,
+    id: req.query.product_id
+  }
 
   models.getReviews(req.query.product_id, (err, data) => {
     if (err) {
       console.log('error', err);
       res.sendStatus(400);
     } else {
-      // convert null string
-      // data.forEach((review) => {
-      //   if (review.response = 'null') {
-      //     review.response = null;
-      //   }
-      // });
-      // make a new return object {
+
       let result = {
-        product: Number(req.query.product_id),
+        product: req.query.product_id,
         page: Number(req.query.page) || 1,
         count: Number(req.query.count) || 5,
         results: data
