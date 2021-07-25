@@ -21,11 +21,16 @@ app.get('/reviews', (req, res) => {
       if (req.query.sort === 'helpful') {
         data.sort((a, b) => b.helpfulness - a.helpfulness);
       } else if (req.query.sort === 'newest') {
-        console.log('sort date')
         data.sort((a, b) => (a.date < b.date) ? 1 : (a.date > b.date) ? -1 : 0);
       } else {
-        console.log('relevant sort')
-        // TODO: relevant sort
+        // relevant sort
+        data.sort((a, b) => {
+          if (a.helpfulness === b.helpfulness) {
+            return (a.date < b.date) ? 1 : (a.date > b.date) ? -1 : 0;
+          } else {
+            return b.helpfulness - a.helpfulness;
+          }
+        });
       }
 
       // split data into 'pages' of 'count' reviews
@@ -77,6 +82,7 @@ app.post('/reviews', (req, res) => {
 });
 
 app.get('/reviews/meta', (req, res) => {
+
   models.getMeta(req.query.product_id, (err, data) => {
     if (err) {
       console.log('error getting meta')
@@ -90,6 +96,7 @@ app.get('/reviews/meta', (req, res) => {
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
+
   models.updateHelpfulness(req.params.review_id, (err) => {
     if (err) {
       console.log('error updating helpfulness')
@@ -102,6 +109,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
 });
 
 app.put('/reviews/:review_id/report', (req, res) => {
+
   models.reportReview(req.params.review_id, (err) => {
     if (err) {
       console.log('error reporting review')
@@ -109,7 +117,6 @@ app.put('/reviews/:review_id/report', (req, res) => {
     } else {
       console.log('success reporting review')
       res.sendStatus(204);
-      // res.send()
     }
   });
 });
