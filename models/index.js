@@ -2,7 +2,6 @@ const db = require('../db/postgres.js');
 
 module.exports = {
   getMeta: async (productId, callback) => {
-    // query db for meta data
 
     let ratings = {};
     let recommended = {
@@ -25,7 +24,6 @@ module.exports = {
       })
       .catch((error) => {
         console.log('ratings model error', error)
-        // callback error
       });
 
     // recommended: select count(*) from reviews where recommend = true and product_id = ${id}
@@ -38,7 +36,6 @@ module.exports = {
         console.log('recommend error', error);
       });
 
-    // characteristics:
     // get characeristic names, id for the given product_id
     await db.query(`SELECT name, id FROM characteristics WHERE product_id = ${productId}`)
       .then( async (data) => {
@@ -68,13 +65,11 @@ module.exports = {
         callback(error, null);
       });
 
-    // db.end();
-
   },
 
   getReviews: async (id, callback) => {
     // TODO: make arg options to handle id, page, count etc..
-    // get reviews from db
+
     let queryString = `SELECT id AS review_id, rating, summary, recommend, response, body, to_timestamp(date / 1000) AS date, reviewer_name, helpfulness FROM reviews WHERE product_id = ${id} AND reported = false`;
 
     await db.query(queryString)
@@ -82,8 +77,8 @@ module.exports = {
         let reviews = results.rows;
 
         reviews.forEach((row) => {
-          row.date = row.date.toISOString();
           if (row.response === 'null') {row.response = null;}
+          row.date = row.date.toISOString();
           row.photos = [];
         });
         return reviews;
@@ -103,13 +98,10 @@ module.exports = {
         callback(err, null)
       })
 
-    // db.end();
-
   },
 
   addReview: (options, callback) => {
 
-    // add review insert into reviews table in db
     db.query(`INSERT INTO reviews(product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) VALUES('${options.product_id}', '${options.rating}', '${options.date}', '${options.summary}', '${options.body}', '${options.recommend}', false, '${options.name}', '${options.email}', 'null', 0) RETURNING id`)
       .then( async (result) => {
         // get id of the row just inserted
@@ -124,11 +116,9 @@ module.exports = {
             })
         }
 
-        // pass 'return' insertId onto characteristics?
         return insertId;
       })
       .then( async (review_id) => {
-        // characteristics?
 
         // itereate through key / values in characteristics
         for (let key in options.characteristics) {
@@ -144,11 +134,10 @@ module.exports = {
         callback(err, null);
       })
 
-    // db.end();
   },
 
   updateHelpfulness: (id, callback) => {
-    // update db: increment helpfulness for given review id
+
     db.query(`UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = ${id}`, (err, res) => {
       if (err) {
         callback(err, null);
@@ -156,11 +145,10 @@ module.exports = {
         callback(null, 'helpfulness update successful')
       }
     });
-    // db.end();
   },
 
   reportReview: (id, callback) => {
-    // update db: set review id reported to be true
+
     db.query(`UPDATE reviews SET reported = true WHERE id = ${id}`, (err, res) => {
       if (err) {
         callback(err, null);
@@ -168,7 +156,6 @@ module.exports = {
         callback(null, 'review successfully reported')
       }
     });
-    // db.end()
   },
 
 };

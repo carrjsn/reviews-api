@@ -1,34 +1,47 @@
 const express = require('express');
-const models = require('../models/index.js');
 const bodyParser = require('body-parser');
+const models = require('../models/index.js');
 const app = express();
 require('dotenv').config();
 
 app.use(bodyParser.json());
 
 app.get('/reviews', (req, res) => {
-  // get reviews
-  // query params: page, count, sort, product_id
-  let options = {
-    page: req.query.page,
-    count: req.query.count,
-    sort: req.query.sort,
-    id: req.query.product_id
-  }
+
+  const pageSelected = Number(req.query.page) || 1;
+  const countPerPage = Number(req.query.count) || 5;
 
   models.getReviews(req.query.product_id, (err, data) => {
     if (err) {
       console.log('error', err);
       res.sendStatus(400);
-    } else {
 
+    } else {
+      // sort data first
+      if (req.query.sort === 'helpful') {
+        data.sort((a, b) => b.helpfulness - a.helpfulness);
+      } else if (req.query.sort === 'newest') {
+        console.log('sort date')
+        data.sort((a, b) => (a.date < b.date) ? 1 : (a.date > b.date) ? -1 : 0);
+      } else {
+        console.log('relevant sort')
+        // TODO: relevant sort
+      }
+
+      // split data into 'pages' of 'count' reviews
+      let pages = [];
+      for (let i = 0; i < data.length; i = i + countPerPage) {
+        pages.push(data.slice(i, i + countPerPage));
+      }
+
+      // set parent return object props
       let result = {
         product: req.query.product_id,
-        page: Number(req.query.page) || 1,
-        count: Number(req.query.count) || 5,
-        results: data
+        page: pageSelected,
+        count: countPerPage,
+        results: pages[pageSelected - 1] || [] // -1 for actual index
       }
-      // console.log('data', result)
+
       res.status(200);
       res.json(result);
     }
