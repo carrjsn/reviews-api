@@ -32,10 +32,10 @@ describe('Add a review', () => {
   });
 
   it('should add a new review to the database', async () => {
-    const responseBefore = await request(app).get('/reviews?product_id=123458');
+    const responseBefore = await request(app).get('/reviews?product_id=123458&count=100');
     const numReviewsBefore = responseBefore.body.results.length;
     await request(app).post('/reviews').send(options);
-    const responseAfter = await request(app).get('/reviews?product_id=123458');
+    const responseAfter = await request(app).get('/reviews?product_id=123458&count=100');
     const numReviewsAfter = responseAfter.body.results.length;
     expect(numReviewsBefore + 1).toEqual(numReviewsAfter);
   });

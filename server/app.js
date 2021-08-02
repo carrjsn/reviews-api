@@ -1,33 +1,52 @@
 const express = require('express');
-const models = require('../models/index.js');
 const bodyParser = require('body-parser');
+const models = require('../models/index.js');
 const app = express();
+require('dotenv').config();
 
 app.use(bodyParser.json());
 
 app.get('/reviews', (req, res) => {
-  // get reviews
-  // query params: page, count, sort, product_id
-  // let options = {
-  //   page: req.query.page,
-  //   count: req.query.count,
-  //   sort: req.query.sort,
-  //   id: req.query.product_id
-  // }
+
+  const pageSelected = Number(req.query.page) || 1;
+  const countPerPage = Number(req.query.count) || 5;
 
   models.getReviews(req.query.product_id, (err, data) => {
     if (err) {
       console.log('error', err);
       res.sendStatus(400);
+
     } else {
-      // make a new return object {
-      let result = {
-        product: Number(req.query.product_id),
-        page: Number(req.query.page) || 1,
-        count: Number(req.query.count),
-        results: data
+      // sort data first
+      if (req.query.sort === 'helpful') {
+        data.sort((a, b) => b.helpfulness - a.helpfulness);
+      } else if (req.query.sort === 'newest') {
+        data.sort((a, b) => (a.date < b.date) ? 1 : (a.date > b.date) ? -1 : 0);
+      } else {
+        // relevant sort
+        data.sort((a, b) => {
+          if (a.helpfulness === b.helpfulness) {
+            return (a.date < b.date) ? 1 : (a.date > b.date) ? -1 : 0;
+          } else {
+            return b.helpfulness - a.helpfulness;
+          }
+        });
       }
-      // console.log('data', result)
+
+      // split data into 'pages' of 'count' reviews
+      let pages = [];
+      for (let i = 0; i < data.length; i = i + countPerPage) {
+        pages.push(data.slice(i, i + countPerPage));
+      }
+
+      // set parent return object props
+      let result = {
+        product: req.query.product_id,
+        page: pageSelected,
+        count: countPerPage,
+        results: pages[pageSelected - 1] || [] // -1 for actual index
+      }
+
       res.status(200);
       res.json(result);
     }
@@ -63,6 +82,7 @@ app.post('/reviews', (req, res) => {
 });
 
 app.get('/reviews/meta', (req, res) => {
+
   models.getMeta(req.query.product_id, (err, data) => {
     if (err) {
       console.log('error getting meta')
@@ -76,6 +96,7 @@ app.get('/reviews/meta', (req, res) => {
 });
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
+
   models.updateHelpfulness(req.params.review_id, (err) => {
     if (err) {
       console.log('error updating helpfulness')
@@ -88,6 +109,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
 });
 
 app.put('/reviews/:review_id/report', (req, res) => {
+
   models.reportReview(req.params.review_id, (err) => {
     if (err) {
       console.log('error reporting review')
@@ -95,7 +117,6 @@ app.put('/reviews/:review_id/report', (req, res) => {
     } else {
       console.log('success reporting review')
       res.sendStatus(204);
-      // res.send()
     }
   });
 });
