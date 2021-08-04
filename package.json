@@ -6,6 +6,7 @@
   "scripts": {
     "coverage": "jest --coverage",
     "test": "jest --verbose",
+    "load:test": "k6 run tests/load-test.js",
     "start": "nodemon server/index.js"
   },
   "repository": {
