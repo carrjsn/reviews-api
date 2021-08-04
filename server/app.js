@@ -73,7 +73,7 @@ app.post('/reviews', (req, res) => {
       console.log('error posting review');
       res.sendStatus(400);
     } else {
-      console.log('success posting review');
+      // console.log('success posting review');
       res.status(201);
       res.json(data);
     }
@@ -88,7 +88,7 @@ app.get('/reviews/meta', (req, res) => {
       console.log('error getting meta')
       res.sendStatus(400);
     } else {
-      console.log('meta success')
+      // console.log('meta success')
       res.status(200);
       res.send(data);
     }
@@ -102,7 +102,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
       console.log('error updating helpfulness')
       res.sendStatus(404);
     } else {
-      console.log('success updating helpfulness')
+      // console.log('success updating helpfulness')
       res.sendStatus(204)
     }
   });
@@ -115,7 +115,7 @@ app.put('/reviews/:review_id/report', (req, res) => {
       console.log('error reporting review')
       res.sendStatus(404);
     } else {
-      console.log('success reporting review')
+      // console.log('success reporting review')
       res.sendStatus(204);
     }
   });

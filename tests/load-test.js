@@ -1,5 +1,8 @@
 import http from 'k6/http';
 import { check } from 'k6';
+// for resetting updated data after tests
+// const db = require('../db/postgres.js');
+// import db from '../db/postgres.js';
 
 // keep id range higher, toward end of data set - last 10%
 const min = 911111;
@@ -27,21 +30,58 @@ const metaCheck = () => {
             return id === randomId;
         }
     })
+
+}
+
+const reportReviewCheck = () => {
+  let randomReviewId = Math.floor(Math.random() * (max - min) + min);
+    let response = http.put(`http://localhost:3030/reviews/${randomReviewId}/report`);
+    check(response, {
+      "reportreview: is status 204": (response) => response.status === 204
+    });
+    // db.query(`UPDATE reviews SET reported = false WHERE id = ${randomReviewId}`);
+}
+
+const helpfulnessUpdateCheck = () => {
+  let randomReviewId = Math.floor(Math.random() * (max - min) + min);
+    let response = http.put(`http://localhost:3030/reviews/${randomReviewId}/helpful`);
+    check(response, {
+      "helpful: is status 204": (response) => response.status === 204
+    });
+    // db.query(`UPDATE reviews SET helpfulness = helpfulness - 1 WHERE id = ${randomId}`);
 }
 
 
 export default function () {
   // reviewsCheck();
-  metaCheck();
+  // metaCheck();
+  helpfulnessUpdateCheck();
+  // reportReviewCheck();
   // add more endpoint checks here
 }
 
 export let options = {
-    vus: 30,
-    duration: '5s',
+    // scenarios: {
+    //   constant_request_rate: {
+    //     executor: 'constant-arrival-rate',
+    //     rate: 1000,
+    //     timeUnit: '1s',
+    //     duration: '10s',
+    //     preAllocatedVUs: 800,
+    //     maxVUs: 1000,
+    //   },
+    // },
+    vus: 1,
+    duration: '1s',
+
+    // stages: [
+    //   { duration: '10s', target: 100},
+    //   { duration: '10s', target: 100},
+    //   { duration: '10s', target: 0},
+    // ],
+
     // thresholds: {
-    //     'failed requests': ['rate<0.02'],
+    //     http_req_failed: ['rate<0.02'],
     //     http_req_duration: ['p(95)<500'],
-    //     http_reqs: ['count>6000']
     // },
 };
