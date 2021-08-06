@@ -51,37 +51,64 @@ const helpfulnessUpdateCheck = () => {
     // db.query(`UPDATE reviews SET helpfulness = helpfulness - 1 WHERE id = ${randomId}`);
 }
 
+const addReviewCheck = () => {
+  // post review
+};
+
 
 export default function () {
-  // reviewsCheck();
+  reviewsCheck();
   // metaCheck();
-  helpfulnessUpdateCheck();
+  // helpfulnessUpdateCheck();
   // reportReviewCheck();
+  // addReviewCheck();
+
   // add more endpoint checks here
 }
 
 export let options = {
+
+    // scenarios: {
+    //   constant_request_rate: {
+    //     executor: 'constant-arrival-rate',
+    //     rate: 1,
+    //     timeUnit: '1s',
+    //     duration: '1m',
+    //     preAllocatedVUs: 20,
+    //     maxVUs: 100,
+    //   },
+    // }
+
+    // scenarios: {
+    //   constant_request_rate: {
+    //     executor: 'constant-arrival-rate',
+    //     rate: 10,
+    //     timeUnit: '1s',
+    //     duration: '1m',
+    //     preAllocatedVUs: 20,
+    //     maxVUs: 100,
+    //   },
+    // }
+
+    // scenarios: {
+    //   constant_request_rate: {
+    //     executor: 'constant-arrival-rate',
+    //     rate: 100,
+    //     timeUnit: '1s',
+    //     duration: '1m',
+    //     preAllocatedVUs: 20,
+    //     maxVUs: 100,
+    //   },
+    // }
+
     // scenarios: {
     //   constant_request_rate: {
     //     executor: 'constant-arrival-rate',
     //     rate: 1000,
     //     timeUnit: '1s',
-    //     duration: '10s',
-    //     preAllocatedVUs: 800,
-    //     maxVUs: 1000,
+    //     duration: '1m',
+    //     preAllocatedVUs: 20,
+    //     maxVUs: 500,
     //   },
-    // },
-    vus: 1,
-    duration: '1s',
-
-    // stages: [
-    //   { duration: '10s', target: 100},
-    //   { duration: '10s', target: 100},
-    //   { duration: '10s', target: 0},
-    // ],
-
-    // thresholds: {
-    //     http_req_failed: ['rate<0.02'],
-    //     http_req_duration: ['p(95)<500'],
-    // },
+    // }
 };
