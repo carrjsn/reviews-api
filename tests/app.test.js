@@ -4,7 +4,7 @@ const request = require('supertest');
 const db = require('../db/postgres.js');
 
 // allow long queries to be tested
-jest.setTimeout(70000);
+jest.setTimeout(10000);
 
 describe('Add a review', () => {
 

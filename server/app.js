@@ -6,6 +6,8 @@ require('dotenv').config();
 
 app.use(bodyParser.json());
 
+// console.log('nodeenv', process.env.NODE_ENV);
+
 app.get('/reviews', (req, res) => {
 
   const pageSelected = Number(req.query.page) || 1;
