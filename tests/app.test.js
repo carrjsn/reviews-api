@@ -6,68 +6,30 @@ const db = require('../db/postgres.js');
 // allow long queries to be tested
 jest.setTimeout(10000);
 
+// dummy review for all tests
+const options = {
+    product_id: 1,
+    rating: 4,
+    summary: 'test review',
+    body: 'test review body',
+    recommend: true,
+    name: 'john',
+    email: 'johndoe@email.com',
+    photos: ['url1', 'url2'],
+    characteristics: {
+      '1': 3,
+    }
+};
 
 describe('Add a review', () => {
 
-  // test post information
-  const options = {
-      product_id: 1,
-      rating: 4,
-      summary: 'test review',
-      body: 'test review body',
-      recommend: true,
-      name: 'john',
-      email: 'johndoe@email.com',
-      photos: ['url1', 'url2'],
-      characteristics: {
-        '1': 3,
-      }
-  };
+  beforeAll(() => {
+    return cleanTestDatabase();
+  });
 
-  // beforeAll(() => {
-  //   return db.query('DELETE FROM reviews')
-  //     .then(() => {
-  //       return db.query('ALTER SEQUENCE reviews_id_seq RESTART WITH 1');
-  //     })
-  //     .then(() => {
-  //       return db.query(`INSERT INTO products(name) VALUES ('test')`)
-  //     })
-  //     .then(() => {
-  //       return db.query(`INSERT INTO characteristics(product_id, name) VALUES (1, 'testname1')`)
-  //     })
-  //     .catch((error) => {
-  //       console.log('beforeAll error', error)
-  //     });
-  // });
-
-  // afterAll(() => {
-  //   return db.query('DELETE FROM photos')
-  //     .then(() => {
-  //       db.query('ALTER SEQUENCE photos_id_seq RESTART WITH 1')
-  //     })
-  //     .then(() => {
-  //       db.query('DELETE FROM characteristics')
-  //     })
-  //     .then(() => {
-  //       db.query('ALTER SEQUENCE characteristics_id_seq RESTART WITH 1')
-  //     })
-  //     .then(() => {
-  //       db.query('DELETE FROM characteristic_reviews')
-  //     })
-  //     .then(() => {
-  //       db.query('ALTER SEQUENCE characteristic_reviews_id_seq RESTART WITH 1')
-  //     })
-  //     // reset prodcuts
-  //     .then(() => {
-  //       db.query(`DELETE FROM products`)
-  //     })
-  //     .then(() => {
-  //       db.query('ALTER SEQUENCE products_id_seq RESTART WITH 1')
-  //     })
-  //     .catch((error) => {
-  //       console.log('afterAll error', error)
-  //     });
-  // });
+  afterAll(() => {
+    return cleanTestDatabase();
+  });
 
   it('should respond with a 201 status code', async () => {
     await db.query(`INSERT INTO products(name) VALUES ('test')`);
@@ -98,22 +60,36 @@ describe('Add a review', () => {
 
 describe('Get reviews', () => {
 
+  beforeAll(() => {
+    return cleanTestDatabase();
+  });
+
+  afterAll(() => {
+    return cleanTestDatabase();
+  });
+
+  // need to POST review for these tests!
   it('should respond with a 200 status code', async () => {
+    await db.query(`INSERT INTO products(name) VALUES ('test')`);
+    await db.query(`INSERT INTO characteristics(product_id, name) VALUES (1, 'testname1')`);
+    await request(app).post('/reviews').send(options);
     const response = await request(app).get('/reviews?product_id=1');
+    console.log(response.body);
     expect(response.statusCode).toBe(200);
   });
 
-  xit('should return one page by default if no page paramter provided', async () => {
-    const response = await request(app).get('/reviews?product_id=123456');
-    expect(response.body.page).toBe(1);
-  });
+  // TODO: refactor
+  // xit('should return first page by default if no page paramter provided', async () => {
+  //   const response = await request(app).get('/reviews?product_id=1');
+  //   expect(response.body.page).toBe(1);
+  // });
 
-  xit('should return the correct number of pages if page count provided', async () => {
-    const response = await request(app).get('/reviews?product_id=123456&page=3');
-    expect(response.body.page).toBe(3);
-  });
+  // xit('should return the correct page number if page count provided', async () => {
+  //   const response = await request(app).get('/reviews?product_id=1&page=3');
+  //   expect(response.body.page).toBe(3);
+  // });
 
-  xit('should return date in proper ISO format', async () => {
+  it('should return date in proper ISO format', async () => {
     const dateCheck = (str) => {
       if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) {
         return false;
@@ -122,61 +98,92 @@ describe('Get reviews', () => {
       return date.toISOString()===str;
     }
 
-    const response = await request(app).get('/reviews?product_id=123456');
+    const response = await request(app).get('/reviews?product_id=1');
+    // console.log(response.body);
     expect(dateCheck(response.body.results[0].date)).toBe(true)
   });
 
-  xit('should return photos if review has any', async () => {
-    const response = await request(app).get('/reviews?product_id=123456');
-    expect(response.body.results[0].photos.length).toBeGreaterThan(0);
+  it('should return photos if review has any', async () => {
+    const response = await request(app).get('/reviews?product_id=1');
+    expect(response.body.results[0].photos.length).toBe(2);
+
   });
 
 });
 
-xdescribe('Get meta data', () => {
+describe('Get meta data', () => {
+
+  beforeAll(() => {
+    return cleanTestDatabase();
+  });
+
+  afterAll(() => {
+    return cleanTestDatabase();
+  });
 
   it('should respond with a 200 status code', async () => {
-    const response = await request(app).get('/reviews/meta?product_id=121756');
+    await db.query(`INSERT INTO products(name) VALUES ('test')`);
+    await db.query(`INSERT INTO characteristics(product_id, name) VALUES (1, 'testname1')`);
+    await request(app).post('/reviews').send(options);
+    const response = await request(app).get('/reviews/meta?product_id=1');
     expect(response.statusCode).toBe(200);
   });
 
   it('recommended data should have true and false keys', async () => {
-    const response = await request(app).get('/reviews/meta?product_id=121756');
+    const response = await request(app).get('/reviews/meta?product_id=1');
+    console.log(response.body);
+    expect(response.body).toHaveProperty('recommended');
     expect(response.body.recommended).toHaveProperty('true');
     expect(response.body.recommended).toHaveProperty('false');
   });
 
   it('should return meta data for recommended votes', async () => {
-    const response = await request(app).get('/reviews/meta?product_id=121756');
-    expect(response.body).toHaveProperty('recommended');
+    const response = await request(app).get('/reviews/meta?product_id=1');
+    expect(response.body.recommended.true).toBe(1);
+    expect(response.body.recommended.false).toBe(0);
   });
 
   it('should return meta data for characteristics', async () => {
-    const response = await request(app).get('/reviews/meta?product_id=121756');
+    const response = await request(app).get('/reviews/meta?product_id=1');
     expect(response.body).toHaveProperty('characteristics');
+    expect(response.body.characteristics['testname1'].value).toEqual('3.0000000000000000')
   });
 
   it('should return meta data for review ratings', async () => {
-    const response = await request(app).get('/reviews/meta?product_id=121756');
+    const response = await request(app).get('/reviews/meta?product_id=1');
     expect(response.body).toHaveProperty('ratings');
+    expect(response.body.ratings['4']).toBe(1);
   });
 
 });
 
-xdescribe('Update helpfulness', () => {
+describe('Update helpfulness', () => {
+
+  beforeAll(() => {
+    return cleanTestDatabase();
+  });
+
+  afterAll(() => {
+    return cleanTestDatabase();
+  });
 
   // add beforeEach to reset helpfulness change
   it('should respond with a 204 status code', async () => {
-    const response = await request(app).put('/reviews/121756/helpful');
+    // put this post in setup
+    await db.query(`INSERT INTO products(name) VALUES ('test')`);
+    await db.query(`INSERT INTO characteristics(product_id, name) VALUES (1, 'testname1')`);
+    await request(app).post('/reviews').send(options);
+
+    const response = await request(app).put('/reviews/1/helpful');
     expect(response.statusCode).toBe(204);
     // undo increment helpfulness
-    await db.query('UPDATE reviews SET helpfulness = helpfulness - 1 WHERE id = 121756');
+    await db.query('UPDATE reviews SET helpfulness = helpfulness - 1 WHERE id = 1');
   });
 
   it('should add one to the helpfulness count of a review', async () => {
     // const response = await request(app).get('/reviews?product_id=123456');
     let response;
-    await db.query('SELECT * FROM reviews WHERE product_id = 123456').then((results) => response = results.rows)
+    await db.query('SELECT * FROM reviews WHERE product_id = 1').then((results) => response = results.rows)
 
     let reviewHelpfulness = response[0].helpfulness;
     let reviewId = response[0].id;
@@ -184,7 +191,7 @@ xdescribe('Update helpfulness', () => {
     await request(app).put(`/reviews/${reviewId}/helpful`);
     // const updatedResponse = await request(app).get('/reviews?product_id=123456');
     let updatedResponse;
-    await db.query('SELECT * FROM reviews WHERE product_id = 123456').then((results) => updatedResponse = results.rows)
+    await db.query('SELECT * FROM reviews WHERE product_id = 1').then((results) => updatedResponse = results.rows)
     let updatedReviewHelpfulness = updatedResponse[0].helpfulness;
     expect(updatedReviewHelpfulness).toEqual(reviewHelpfulness + 1);
     // reset count
@@ -193,23 +200,34 @@ xdescribe('Update helpfulness', () => {
 
 });
 
-xdescribe('Report a review', () => {
+describe('Report a review', () => {
+
+  beforeAll(() => {
+    return cleanTestDatabase();
+  });
+
+  afterAll(() => {
+    return cleanTestDatabase();
+  });
 
   it('respond with a 204 status code', async () => {
-    const response = await request(app).put('/reviews/121252/report');
+    await db.query(`INSERT INTO products(name) VALUES ('test')`);
+    await db.query(`INSERT INTO characteristics(product_id, name) VALUES (1, 'testname1')`);
+    await request(app).post('/reviews').send(options);
+    const response = await request(app).put('/reviews/1/report');
     expect(response.statusCode).toBe(204);
     // db.query undo the report
-    await db.query('UPDATE reviews SET reported = false WHERE id = 121252');
+    await db.query('UPDATE reviews SET reported = false WHERE id = 1');
   });
 
   it('reported review should not be rendered on subsequent fetches', async () => {
     let response;
-    await db.query('SELECT * FROM reviews WHERE product_id = 121259').then((results) => response = results.rows)
+    await db.query('SELECT * FROM reviews WHERE product_id = 1').then((results) => response = results.rows)
     let reviewId = response[0].id;
     //report review
     await request(app).put(`/reviews/${reviewId}/report`);
 
-    const updatedResponse = await request(app).get('/reviews?product_id=121259');
+    const updatedResponse = await request(app).get('/reviews?product_id=1');
     const updatedReviews = updatedResponse.body.results;
     updatedReviews.forEach((review) => {
       expect(review.id).not.toEqual(reviewId);
@@ -221,4 +239,38 @@ xdescribe('Report a review', () => {
 });
 
 
-
+const cleanTestDatabase = function() {
+  // clean tables and reset PK to be 1
+  return db.query('DELETE FROM photos')
+      .then(() => {
+        return db.query('ALTER SEQUENCE photos_id_seq RESTART WITH 1')
+      })
+      .then(() => {
+        return db.query('DELETE FROM characteristic_reviews')
+      })
+      .then(() => {
+        return db.query('ALTER SEQUENCE characteristic_reviews_id_seq RESTART WITH 1')
+      })
+      .then(() => {
+        return db.query('DELETE FROM characteristics')
+      })
+      .then(() => {
+        return db.query('ALTER SEQUENCE characteristics_id_seq RESTART WITH 1')
+      })
+      .then(() => {
+        return db.query('DELETE FROM reviews')
+      })
+      .then(() => {
+        return db.query('ALTER SEQUENCE reviews_id_seq RESTART WITH 1')
+      })
+      // reset prodcuts
+      .then(() => {
+        return db.query(`DELETE FROM products`)
+      })
+      .then(() => {
+        return db.query('ALTER SEQUENCE products_id_seq RESTART WITH 1')
+      })
+      .catch((error) => {
+        return console.log('cleanDB error', error)
+      });
+}
