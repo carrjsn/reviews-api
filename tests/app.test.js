@@ -74,7 +74,6 @@ describe('Get reviews', () => {
     await db.query(`INSERT INTO characteristics(product_id, name) VALUES (1, 'testname1')`);
     await request(app).post('/reviews').send(options);
     const response = await request(app).get('/reviews?product_id=1');
-    console.log(response.body);
     expect(response.statusCode).toBe(200);
   });
 
@@ -97,7 +96,6 @@ describe('Get reviews', () => {
     }
 
     const response = await request(app).get('/reviews?product_id=1');
-    // console.log(response.body);
     expect(dateCheck(response.body.results[0].date)).toBe(true)
   });
 
@@ -129,7 +127,6 @@ describe('Get meta data', () => {
 
   it('recommended data should have true and false keys', async () => {
     const response = await request(app).get('/reviews/meta?product_id=1');
-    console.log(response.body);
     expect(response.body).toHaveProperty('recommended');
     expect(response.body.recommended).toHaveProperty('true');
     expect(response.body.recommended).toHaveProperty('false');
