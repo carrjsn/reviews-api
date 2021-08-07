@@ -78,15 +78,13 @@ describe('Get reviews', () => {
     expect(response.statusCode).toBe(200);
   });
 
-  // TODO: refactor
+  // TODO:
   // xit('should return first page by default if no page paramter provided', async () => {
-  //   const response = await request(app).get('/reviews?product_id=1');
-  //   expect(response.body.page).toBe(1);
+  //
   // });
 
   // xit('should return the correct page number if page count provided', async () => {
-  //   const response = await request(app).get('/reviews?product_id=1&page=3');
-  //   expect(response.body.page).toBe(3);
+  //
   // });
 
   it('should return date in proper ISO format', async () => {

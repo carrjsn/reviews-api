@@ -1,8 +1,5 @@
 import http from 'k6/http';
 import { check } from 'k6';
-// for resetting updated data after tests
-// const db = require('../db/postgres.js');
-// import db from '../db/postgres.js';
 
 // keep id range higher, toward end of data set - last 10%
 const min = 911111;
@@ -52,7 +49,7 @@ const helpfulnessUpdateCheck = () => {
 }
 
 const addReviewCheck = () => {
-  // post review
+  // TODO: post review
 };
 
 
@@ -68,16 +65,16 @@ export default function () {
 
 export let options = {
 
-    // scenarios: {
-    //   constant_request_rate: {
-    //     executor: 'constant-arrival-rate',
-    //     rate: 1,
-    //     timeUnit: '1s',
-    //     duration: '1m',
-    //     preAllocatedVUs: 20,
-    //     maxVUs: 100,
-    //   },
-    // }
+    scenarios: {
+      constant_request_rate: {
+        executor: 'constant-arrival-rate',
+        rate: 1,
+        timeUnit: '1s',
+        duration: '1m',
+        preAllocatedVUs: 20,
+        maxVUs: 100,
+      },
+    }
 
     // scenarios: {
     //   constant_request_rate: {
