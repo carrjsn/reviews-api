@@ -6,6 +6,10 @@ require('dotenv').config();
 
 app.use(bodyParser.json());
 
+app.get('/', (req, res) => {
+  res.send('SDC!')
+});
+
 app.get('/reviews', (req, res) => {
 
   const pageSelected = Number(req.query.page) || 1;
