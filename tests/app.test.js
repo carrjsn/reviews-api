@@ -3,10 +3,6 @@ const app = require('../server/app.js');
 const request = require('supertest');
 const db = require('../db/postgres.js');
 
-// allow long queries to be tested
-jest.setTimeout(10000);
-
-// dummy review for all tests
 const options = {
     product_id: 1,
     rating: 4,
@@ -68,7 +64,6 @@ describe('Get reviews', () => {
     return cleanTestDatabase();
   });
 
-  // need to POST review for these tests!
   it('should respond with a 200 status code', async () => {
     await db.query(`INSERT INTO products(name) VALUES ('test')`);
     await db.query(`INSERT INTO characteristics(product_id, name) VALUES (1, 'testname1')`);
@@ -76,15 +71,6 @@ describe('Get reviews', () => {
     const response = await request(app).get('/reviews?product_id=1');
     expect(response.statusCode).toBe(200);
   });
-
-  // TODO:
-  // xit('should return first page by default if no page paramter provided', async () => {
-  //
-  // });
-
-  // xit('should return the correct page number if page count provided', async () => {
-  //
-  // });
 
   it('should return date in proper ISO format', async () => {
     const dateCheck = (str) => {
@@ -162,21 +148,17 @@ describe('Update helpfulness', () => {
     return cleanTestDatabase();
   });
 
-  // add beforeEach to reset helpfulness change
   it('should respond with a 204 status code', async () => {
-    // put this post in setup
     await db.query(`INSERT INTO products(name) VALUES ('test')`);
     await db.query(`INSERT INTO characteristics(product_id, name) VALUES (1, 'testname1')`);
     await request(app).post('/reviews').send(options);
 
     const response = await request(app).put('/reviews/1/helpful');
     expect(response.statusCode).toBe(204);
-    // undo increment helpfulness
     await db.query('UPDATE reviews SET helpfulness = helpfulness - 1 WHERE id = 1');
   });
 
   it('should add one to the helpfulness count of a review', async () => {
-    // const response = await request(app).get('/reviews?product_id=123456');
     let response;
     await db.query('SELECT * FROM reviews WHERE product_id = 1').then((results) => response = results.rows)
 
@@ -184,7 +166,6 @@ describe('Update helpfulness', () => {
     let reviewId = response[0].id;
 
     await request(app).put(`/reviews/${reviewId}/helpful`);
-    // const updatedResponse = await request(app).get('/reviews?product_id=123456');
     let updatedResponse;
     await db.query('SELECT * FROM reviews WHERE product_id = 1').then((results) => updatedResponse = results.rows)
     let updatedReviewHelpfulness = updatedResponse[0].helpfulness;
@@ -211,7 +192,7 @@ describe('Report a review', () => {
     await request(app).post('/reviews').send(options);
     const response = await request(app).put('/reviews/1/report');
     expect(response.statusCode).toBe(204);
-    // db.query undo the report
+    // undo the report
     await db.query('UPDATE reviews SET reported = false WHERE id = 1');
   });
 
@@ -219,7 +200,7 @@ describe('Report a review', () => {
     let response;
     await db.query('SELECT * FROM reviews WHERE product_id = 1').then((results) => response = results.rows)
     let reviewId = response[0].id;
-    //report review
+    // report review
     await request(app).put(`/reviews/${reviewId}/report`);
 
     const updatedResponse = await request(app).get('/reviews?product_id=1');
@@ -227,7 +208,7 @@ describe('Report a review', () => {
     updatedReviews.forEach((review) => {
       expect(review.id).not.toEqual(reviewId);
     });
-    // db.query undo the report - after each?
+    // undo the report
     await db.query(`UPDATE reviews SET reported = false WHERE id = ${reviewId}`);
   });
 

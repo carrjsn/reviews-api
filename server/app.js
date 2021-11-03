@@ -21,7 +21,7 @@ app.get('/reviews', (req, res) => {
       res.sendStatus(400);
 
     } else {
-      // sort data first
+      // sort data
       if (req.query.sort === 'helpful') {
         data.sort((a, b) => b.helpfulness - a.helpfulness);
       } else if (req.query.sort === 'newest') {
@@ -43,7 +43,6 @@ app.get('/reviews', (req, res) => {
         pages.push(data.slice(i, i + countPerPage));
       }
 
-      // set parent return object props
       let result = {
         product: req.query.product_id,
         page: pageSelected,
@@ -58,7 +57,7 @@ app.get('/reviews', (req, res) => {
 });
 
 app.post('/reviews', (req, res) => {
-  // body params
+
   let options = {
     product_id: req.body.product_id,
     rating: req.body.rating,
@@ -77,7 +76,6 @@ app.post('/reviews', (req, res) => {
       console.log('error posting review');
       res.sendStatus(400);
     } else {
-      // console.log('success posting review');
       res.status(201);
       res.json(data);
     }
@@ -92,7 +90,6 @@ app.get('/reviews/meta', (req, res) => {
       console.log('error getting meta')
       res.sendStatus(400);
     } else {
-      // console.log('meta success')
       res.status(200);
       res.send(data);
     }
@@ -106,7 +103,6 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
       console.log('error updating helpfulness')
       res.sendStatus(404);
     } else {
-      // console.log('success updating helpfulness')
       res.sendStatus(204)
     }
   });
@@ -119,7 +115,6 @@ app.put('/reviews/:review_id/report', (req, res) => {
       console.log('error reporting review')
       res.sendStatus(404);
     } else {
-      // console.log('success reporting review')
       res.sendStatus(204);
     }
   });

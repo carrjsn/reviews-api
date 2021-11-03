@@ -10,10 +10,9 @@ module.exports = {
     };
     let characteristics = {};
 
-    // ratings: select rating from reviews where product_id = ${id}
+    // ratings
     await db.query(`SELECT rating FROM reviews WHERE product_id = ${productId}`)
       .then((data) => {
-        // return string not int ?
         data.rows.forEach((row) => {
           if (!ratings[row.rating]) {
             ratings[row.rating] = 1;
@@ -26,9 +25,8 @@ module.exports = {
         console.log('ratings model error', error)
       });
 
-    // recommended: select count(*) from reviews where recommend = true and product_id = ${id}
+    // recommended
     await db.query(`SELECT recommend FROM reviews WHERE product_id = ${productId}`)
-      // return string not int?
       .then((data) => {
         data.rows.forEach((row) => recommended[row.recommend]++);
       })
@@ -36,7 +34,7 @@ module.exports = {
         console.log('recommend error', error);
       });
 
-    // get characeristic names, id for the given product_id
+    // characeristic names
     await db.query(`SELECT name, id FROM characteristics WHERE product_id = ${productId}`)
       .then( async (data) => {
         for (let row of data.rows) {
@@ -68,7 +66,6 @@ module.exports = {
   },
 
   getReviews: async (id, callback) => {
-    // TODO: make arg options to handle id, page, count etc..
 
     let queryString = `SELECT id AS review_id, rating, summary, recommend, response, body, to_timestamp(date / 1000) AS date, reviewer_name, helpfulness FROM reviews WHERE product_id = ${id} AND reported = false`;
 
@@ -124,7 +121,7 @@ module.exports = {
         for (let key in options.characteristics) {
           await db.query(`INSERT INTO characteristic_reviews (characteristic_id, review_id, value) VALUES ('${key}', '${review_id}', '${options.characteristics[key]}')`)
             .then((result) => {
-              // console.log('characteristic join table updated');
+              // console.log('characteristic join table updated');s
             })
         }
         callback(null, review_id)

@@ -42,7 +42,7 @@ const reportReviewCheck = () => {
     check(response, {
       "reportreview: is status 204": (response) => response.status === 204
     });
-    // db.query(`UPDATE reviews SET reported = false WHERE id = ${randomReviewId}`);
+
 }
 
 const helpfulnessUpdateCheck = () => {
@@ -51,11 +51,10 @@ const helpfulnessUpdateCheck = () => {
     check(response, {
       "helpful: is status 204": (response) => response.status === 204
     });
-    // db.query(`UPDATE reviews SET helpfulness = helpfulness - 1 WHERE id = ${randomId}`);
+
 }
 
 const addReviewCheck = () => {
-  // TODO: post review
   let randomProductId = Math.floor(Math.random() * (maxProductId - minProductId) + minProductId);
   var url = `http://localhost:3030/reviews`;
   var payload = JSON.stringify({
@@ -68,8 +67,6 @@ const addReviewCheck = () => {
     email: 'johndoe@email.com',
     photos: ['url1', 'url2'],
     characteristics: {
-      // TODO: how to get appropriate char ids that are relevant to random generated product id?
-      // max char id = 3347679
       '3347444': 3,
     }
   });
@@ -94,21 +91,22 @@ export default function () {
   reportReviewCheck();
   // addReviewCheck();
 
-  // add more endpoint checks here
 }
 
 export let options = {
 
-    // scenarios: {
-    //   constant_request_rate: {
-    //     executor: 'constant-arrival-rate',
-    //     rate: 1,
-    //     timeUnit: '1s',
-    //     duration: '1m',
-    //     preAllocatedVUs: 20,
-    //     maxVUs: 100,
-    //   },
-    // }
+    // uncomment scenario for various RPS testing
+
+    scenarios: {
+      constant_request_rate: {
+        executor: 'constant-arrival-rate',
+        rate: 1,
+        timeUnit: '1s',
+        duration: '1m',
+        preAllocatedVUs: 20,
+        maxVUs: 100,
+      },
+    }
 
     // scenarios: {
     //   constant_request_rate: {
@@ -132,15 +130,15 @@ export let options = {
     //   },
     // }
 
-    scenarios: {
-      constant_request_rate: {
-        executor: 'constant-arrival-rate',
-        rate: 1000,
-        timeUnit: '1s',
-        duration: '1m',
-        preAllocatedVUs: 20,
-        maxVUs: 500,
-      },
-    }
+    // scenarios: {
+    //   constant_request_rate: {
+    //     executor: 'constant-arrival-rate',
+    //     rate: 1000,
+    //     timeUnit: '1s',
+    //     duration: '1m',
+    //     preAllocatedVUs: 20,
+    //     maxVUs: 500,
+    //   },
+    // }
 
 };
