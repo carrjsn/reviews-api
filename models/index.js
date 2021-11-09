@@ -121,7 +121,7 @@ module.exports = {
         for (let key in options.characteristics) {
           await db.query(`INSERT INTO characteristic_reviews (characteristic_id, review_id, value) VALUES ('${key}', '${review_id}', '${options.characteristics[key]}')`)
             .then((result) => {
-              // console.log('characteristic join table updated');s
+              // console.log('characteristic join table updated');
             })
         }
         callback(null, review_id)
